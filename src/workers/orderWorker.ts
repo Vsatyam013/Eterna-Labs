@@ -32,7 +32,7 @@ const worker = new Worker('order-queue', async job => {
 
         await publishUpdate(OrderStatus.BUILDING, { quote });
 
-        // Simulate building transaction time
+        // building transaction time
         await new Promise(resolve => setTimeout(resolve, 500));
 
         await publishUpdate(OrderStatus.SUBMITTED);
@@ -47,7 +47,12 @@ const worker = new Worker('order-queue', async job => {
         await query('UPDATE orders SET error = $1 WHERE id = $2', [error.message, order.id]);
     }
 }, {
-    connection: redisConfig
+    connection: redisConfig,
+    concurrency: 10,
+    limiter: {
+        max: 100,
+        duration: 60000 // 1 min
+    }
 });
 
 console.log('Worker started');
