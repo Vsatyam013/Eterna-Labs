@@ -42,9 +42,15 @@ const worker = new Worker('order-queue', async job => {
         await query('UPDATE orders SET tx_hash = $1 WHERE id = $2', [txHash, order.id]);
 
     } catch (error: any) {
-        console.error(`Order ${order.id} failed:`, error);
-        await publishUpdate(OrderStatus.FAILED, { error: error.message });
-        await query('UPDATE orders SET error = $1 WHERE id = $2', [error.message, order.id]);
+        console.error(`Order ${order.id} failed attempt ${job.attemptsMade + 1}/${job.opts.attempts || 1}:`, error);
+
+        if ((job.attemptsMade + 1) >= (job.opts.attempts || 1)) {
+            // final failure after all retries
+            await publishUpdate(OrderStatus.FAILED, { error: error.message });
+            await query('UPDATE orders SET error = $1 WHERE id = $2', [error.message, order.id]);
+        } else {
+            throw error;
+        }
     }
 }, {
     connection: redisConfig,

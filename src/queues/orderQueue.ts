@@ -23,6 +23,11 @@ export class OrderQueue {
         await this.queue.add('process-order', order, {
             removeOnComplete: true,
             removeOnFail: false,
+            attempts: 3,
+            backoff: {
+                type: 'exponential',
+                delay: 1000
+            }
         });
     }
 }
