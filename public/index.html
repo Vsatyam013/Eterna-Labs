@@ -5,7 +5,240 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Execution Engine</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0b;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e5e5e5;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 32px;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+
+        .card {
+            background: #141415;
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0a0a0b;
+            border: 1px solid #2a2a2b;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
+            outline: none;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+
+        select option {
+            background: #141415;
+            color: #fff;
+        }
+
+        select:focus,
+        input:focus {
+            border-color: #444;
+        }
+
+        input::-webkit-inner-spin-button {
+            opacity: 0.3;
+        }
+
+        .swap-row {
+            display: flex;
+            justify-content: center;
+            margin: -6px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .swap-btn {
+            width: 32px;
+            height: 32px;
+            background: #1a1a1b;
+            border: 1px solid #2a2a2b;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .swap-btn:hover {
+            background: #222;
+            border-color: #333;
+        }
+
+        .swap-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: #666;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: #fff;
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            margin-top: 8px;
+        }
+
+        button[type="submit"]:hover {
+            opacity: 0.9;
+        }
+
+        button[type="submit"]:active {
+            opacity: 0.8;
+        }
+
+        .logs {
+            background: #0a0a0b;
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 160px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.8rem;
+            line-height: 1.9;
+        }
+
+        .logs::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .logs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .logs::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 2px;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            opacity: 0;
+            animation: fadeIn 0.25s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .log-time {
+            color: #444;
+            margin-right: 12px;
+        }
+
+        .log-success {
+            color: #4ade80;
+        }
+
+        .log-pending {
+            color: #a3a3a3;
+        }
+
+        .log-error {
+            color: #f87171;
+        }
+
+        .log-info {
+            color: #737373;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #0a0a0b;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #4ade80;
+            border-radius: 50%;
+        }
+
+        .network-tag {
+            color: #666;
+            font-size: 0.75rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -14,19 +247,39 @@
 
         <div class="card">
             <h2>Submit Order</h2>
+
+            <div class="status-row">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>Connected</span>
+                </div>
+                <span class="network-tag">Mainnet</span>
+            </div>
+
             <form id="orderForm">
                 <div class="form-group">
                     <label for="tokenIn">Token In</label>
-                    <input type="text" id="tokenIn" value="SOL" required>
+                    <select id="tokenIn" required></select>
                 </div>
+
+                <div class="swap-row">
+                    <button type="button" class="swap-btn" onclick="swapTokens()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                    </button>
+                </div>
+
                 <div class="form-group">
                     <label for="tokenOut">Token Out</label>
-                    <input type="text" id="tokenOut" value="USDC" required>
+                    <select id="tokenOut" required></select>
                 </div>
+
                 <div class="form-group">
                     <label for="amount">Amount</label>
-                    <input type="number" id="amount" step="0.000001" value="0.1" required>
+                    <input type="number" id="amount" step="0.000001" value="0.1" placeholder="0.0" required>
                 </div>
+
                 <button type="submit">Execute Order</button>
             </form>
         </div>
@@ -37,7 +290,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js"></script>
 </body>
 
 </html>
