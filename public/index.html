@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Execution Engine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Order Execution Engine</h1>
+
+        <div class="card">
+            <h2>Submit Order</h2>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="tokenIn">Token In</label>
+                    <input type="text" id="tokenIn" value="SOL" required>
+                </div>
+                <div class="form-group">
+                    <label for="tokenOut">Token Out</label>
+                    <input type="text" id="tokenOut" value="USDC" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" step="0.000001" value="0.1" required>
+                </div>
+                <button type="submit">Execute Order</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Live Updates</h2>
+            <div id="logs" class="logs"></div>
+        </div>
+    </div>
+
+    <script src="app.js?v=2"></script>
+</body>
+
+</html>

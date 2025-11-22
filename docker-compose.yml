@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: order_engine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d order_engine" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://user:password@postgres:5432/order_engine
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+      # Add PRIVATE_KEY here or in .env file
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: npm start
+
+  worker:
+    build: .
+    environment:
+      - DATABASE_URL=postgres://user:password@postgres:5432/order_engine
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SOLANA_RPC_URL=https://api.devnet.solana.com
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: npx ts-node src/workers/orderWorker.ts
+
+volumes:
+  pgdata:
+  redisdata:
