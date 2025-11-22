@@ -19,7 +19,6 @@ server.register(orderRoutes, { prefix: '/api/orders' });
 const start = async () => {
     try {
         await initDb();
-        await createTestRedis();
         await server.listen({ port: 3000, host: '0.0.0.0' });
         console.log('Server listening on http://localhost:3000');
     } catch (err) {
@@ -27,16 +26,5 @@ const start = async () => {
         process.exit(1);
     }
 };
-
-const createTestRedis = async () => {
-    const redis = new Redis({
-        host: 'redis',
-        port: 6379
-    });
-    redis.set('testKey', 'testValue');
-    redis.get('testKey', (err, value) => {
-        console.log(err, value);
-    });
-}
 
 start();
