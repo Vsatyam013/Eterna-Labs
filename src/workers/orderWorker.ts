@@ -22,7 +22,6 @@ const worker = new Worker('order-queue', async job => {
     const publishUpdate = async (status: OrderStatus, data?: any) => {
         const message = JSON.stringify({ orderId: order.id, status, ...data });
         await redis.publish('order-updates', message);
-        // Update DB
         await query('UPDATE orders SET status = $1 WHERE id = $2', [status, order.id]);
     };
 

@@ -54,9 +54,9 @@ function connectWebSocket() {
       const data = JSON.parse(event.data);
       const status = data.status?.toLowerCase() || '';
       let logType = 'info';
-      if (status.includes('success') || status.includes('complete')) logType = 'success';
-      else if (status.includes('pending') || status.includes('processing')) logType = 'pending';
-      else if (status.includes('error') || status.includes('fail')) logType = 'error';
+      if (status.includes('confirmed')) logType = 'success';
+      else if (status.includes('routing') || status.includes('building') || status.includes('pending') || status.includes('submitted')) logType = 'pending';
+      else if (status.includes('error') || status.includes('failed')) logType = 'error';
       addLog(`Order ${data.orderId}: ${data.status}`, logType);
     } catch (e) {
       addLog(event.data, 'info');

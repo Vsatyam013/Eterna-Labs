@@ -12,7 +12,6 @@ export const query = (text: string, params?: any[]) => pool.query(text, params);
 export const initDb = async () => {
     const client = await pool.connect();
     try {
-        // Create ENUM type if it doesn't exist
         await client.query(`
             DO $$ BEGIN
                 CREATE TYPE order_status AS ENUM ('pending', 'routing', 'building', 'submitted', 'confirmed', 'failed');

@@ -23,12 +23,10 @@ export class OrderController {
             createdAt: new Date(),
         };
 
-        // Initial validation
         if (!tokenIn || !tokenOut || !amount) {
             return reply.status(400).send({ error: 'Missing required fields' });
         }
 
-        // Save to DB
         try {
             await query(
                 'INSERT INTO orders (id, token_in, token_out, amount, status) VALUES ($1, $2, $3, $4, $5)',
@@ -39,7 +37,6 @@ export class OrderController {
             return reply.status(500).send({ error: 'Database error' });
         }
 
-        // Add to queue
         await orderQueue.add(order);
 
         return reply.send({ orderId, status: OrderStatus.PENDING, message: 'Order received and queued' });

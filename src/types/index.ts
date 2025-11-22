@@ -29,5 +29,5 @@ export interface OrderRequest {
     tokenIn: string;
     tokenOut: string;
     amount: number;
-    type?: 'market'; // Default to market for now
+    type?: 'market'; // market for now
 }

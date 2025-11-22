@@ -10,7 +10,6 @@ export class DexRouter {
 
     constructor() {
         this.connection = new Connection(process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com', 'confirmed');
-        // Initialize wallet from private key in env (mocking for now if not present)
         if (process.env.PRIVATE_KEY) {
             try {
                 const secretKey = Uint8Array.from(JSON.parse(process.env.PRIVATE_KEY));
@@ -44,14 +43,10 @@ export class DexRouter {
     }
 
     async executeSwap(dex: string, tokenIn: string, tokenOut: string, amount: number): Promise<string> {
-        console.log(`Executing swap on ${dex}...`);
-
         try {
             const balance = await this.connection.getBalance(this.wallet.publicKey);
-            console.log(`Current balance: ${balance / LAMPORTS_PER_SOL} SOL`);
 
             if (balance < LAMPORTS_PER_SOL * 0.01) {
-                console.log("Low balance, requesting airdrop...");
                 try {
                     const airdropSignature = await this.connection.requestAirdrop(
                         this.wallet.publicKey,
@@ -61,7 +56,7 @@ export class DexRouter {
                     console.log("Airdrop successful");
                 } catch (airdropError: any) {
                     console.warn("Airdrop failed (likely rate limited):", airdropError.message);
-                    // Fallback to mock if airdrop fails to avoid blocking the demo
+                    // fallback to mock if airdrop fails to avoid blocking the demo
                     console.log("Falling back to mock transaction due to airdrop failure.");
                     return "mock_tx_hash_" + Math.random().toString(36).substring(7);
                 }
@@ -70,8 +65,8 @@ export class DexRouter {
             const transaction = new Transaction().add(
                 SystemProgram.transfer({
                     fromPubkey: this.wallet.publicKey,
-                    toPubkey: this.wallet.publicKey, // Sending to self to simulate activity
-                    lamports: LAMPORTS_PER_SOL * 0.001, // Small amount
+                    toPubkey: this.wallet.publicKey,
+                    lamports: LAMPORTS_PER_SOL * 0.001, // small amount
                 })
             );
 
@@ -82,7 +77,6 @@ export class DexRouter {
             return signature;
         } catch (error) {
             console.error("Swap failed:", error);
-            // Return mock hash on failure to keep the UI happy for the demo
             console.log("Returning mock transaction hash due to failure.");
             return "mock_tx_hash_failed_" + Math.random().toString(36).substring(7);
         }
